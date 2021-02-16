@@ -1,0 +1,10 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1 class="display-4 font-italic">{{ post.title }}</h1>
+    <p class="lead">{{ post.description }}</p>
+    <div class="jumbotron p-3 p-md-5 text-white rounded" style="min-height:300px;background-image: url('{{ absolute_url(asset(post.imageFile)) }}'); background-position: center;background-size: cover;">
+    </div>
+        {{ post.content | raw}}
+    </div>
+{% endblock %}
