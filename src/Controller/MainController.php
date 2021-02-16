@@ -43,4 +43,16 @@ class MainController extends AbstractController
             'post' => $postRepository->find($id)
         ]);
     }
+
+    /**
+     * @Route("/news", name="news")
+     * @param PostRepository $postRepository
+     * @return Response
+     */
+    public function news(PostRepository $postRepository): Response
+    {
+        return $this->render('main/news.html.twig', [
+            'news' => array_reverse($postRepository->findAll())
+        ]);
+    }
 }
