@@ -3,11 +3,21 @@
 namespace App\DataFixtures;
 
 use App\Entity\Post;
+use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoder;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class AppFixtures extends Fixture
 {
+    private $passwordEncoder;
+
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     public function load(ObjectManager $manager)
     {
         $firstPost = new Post();
@@ -33,6 +43,42 @@ class AppFixtures extends Fixture
             ->setImageFile('orionthemes-placeholder-image.png');
 
         $manager->persist($thirdPost);
+
+        $rootUser = new User();
+        $rootUser->setUsername('root');
+        $rootUser->setPassword(
+            $this->passwordEncoder->encodePassword(
+                $rootUser,
+                'admin_ADMIN'
+            )
+        );
+        $rootUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
+
+        $manager->persist($rootUser);
+
+        $regularUser = new User();
+        $regularUser->setUsername('user');
+        $regularUser->setPassword(
+            $this->passwordEncoder->encodePassword(
+                $regularUser,
+                'user_USER'
+            )
+        );
+
+        $manager->persist($regularUser);
+
+        $author = new User();
+        $author->setUsername('author');
+        $author->setPassword(
+            $this->passwordEncoder->encodePassword(
+                $author,
+                'author'
+            )
+        );
+        $author->setRoles(['ROLE_AUTHOR', 'ROLE_USER']);
+
+        $manager->persist($author);
+
 
         $manager->flush();
     }

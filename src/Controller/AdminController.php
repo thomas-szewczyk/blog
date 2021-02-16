@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Form\Type\UserType;
 use App\Repository\PostRepository;
+use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
@@ -102,6 +105,45 @@ class AdminController extends AbstractController
     {
         $resolver->setDefaults([
             'data_class' => Post::class,
+        ]);
+    }
+
+    /**
+     * @Route("/admin/user/create", name="new_user")
+     * @param EntityManagerInterface $entityManager
+     * @param Request $request
+     */
+    public function newUser(EntityManagerInterface $entityManager, Request $request) {
+
+        $user = new User();
+        $form = $this->createForm(UserType::class, $user);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted()) {
+            $form->getData();
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'User was added!');
+            return $this->redirectToRoute('show_users');
+        }
+
+        return $this->render('admin/adduser.html.twig', [
+            'form' => $form->createView(),
+        ]);
+
+    }
+
+    /**
+     * @Route("/admin/user", name="show_users")
+     * @param UserRepository $userRepository
+     * @return Response
+     */
+    public function showUsers(UserRepository $userRepository): Response
+    {
+        return $this->render('/admin/users.html.twig', [
+            'list' => $userRepository->findAll()
         ]);
     }
 }
