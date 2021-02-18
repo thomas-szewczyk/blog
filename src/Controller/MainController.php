@@ -28,20 +28,7 @@ class MainController extends AbstractController
         $posts = $postRepository->findAll();
 
         // Array with the 3 most recent posts
-
         return array_reverse(array_slice($posts, (count($posts) - 3), $numOfPosts));
-    }
-
-    /**
-     * @Route ("/post/{id}", name="show")
-     * @param $id
-     * @param PostRepository $postRepository
-     */
-    public function show($id, PostRepository $postRepository): Response
-    {
-        return $this->render('post/post.html.twig', [
-            'post' => $postRepository->find($id)
-        ]);
     }
 
     /**

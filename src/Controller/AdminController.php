@@ -9,11 +9,14 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Type\PostType;
 use App\Entity\Post;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 class AdminController extends AbstractController
@@ -23,18 +26,31 @@ class AdminController extends AbstractController
      */
     public function index(): Response
     {
-        return $this->render('admin/index.html.twig', [
+        return $this->render('admin/dashboard.html.twig', [
             'controller_name' => 'AdminController',
         ]);
     }
 
     /**
      * @Route("admin/posts", name="list")
+     * @param PostRepository $postRepository
+     * @return Response
      */
     public function list(PostRepository $postRepository): Response
     {
+        $user = $this->getUser();
+
+        if ($hasAccess = $this->isGranted('ROLE_ADMIN')) {
+            $headline = 'All Posts';
+        } else {
+            $headline = 'Your Posts';
+        }
+
         return $this->render('admin/list.html.twig', [
-            'list' => $postRepository->findAll()
+            'list' => $postRepository->findAll(),
+            'postsFromUser' => $user->getPosts(),
+            'headline' => $headline
+
         ]);
     }
 
@@ -48,13 +64,14 @@ class AdminController extends AbstractController
 
     public function create(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
-        $post = new Post();
+        $post = new Post(); // new post instance
 
-        $form = $this->createForm(PostType::class, $post);
-
+        $form = $this->createForm(PostType::class, $post);  // creates the form to create a new post
         $form->handleRequest($request);
-        if ($form->isSubmitted()) {
-           $post = $form->getData();
+
+
+        if ($form->isSubmitted()) {     // check if form was submitted
+           $post = $form->getData();    // get the form data
            $imageFile = $form->get('imageFile')->getData();
 
            if ($imageFile) {
@@ -92,7 +109,7 @@ class AdminController extends AbstractController
      * @param Post $post
      * @param EntityManagerInterface $entityManager
      */
-    public function remove(Post $post, EntityManagerInterface $entityManager)
+    public function remove(Post $post, EntityManagerInterface $entityManager): RedirectResponse
     {
         $entityManager->remove($post);
         $entityManager->flush();
@@ -112,8 +129,10 @@ class AdminController extends AbstractController
      * @Route("/admin/user/create", name="new_user")
      * @param EntityManagerInterface $entityManager
      * @param Request $request
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     * @return RedirectResponse|Response
      */
-    public function newUser(EntityManagerInterface $entityManager, Request $request) {
+    public function newUser(EntityManagerInterface $entityManager, Request $request, UserPasswordEncoderInterface $passwordEncoder) {
 
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -121,6 +140,8 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted()) {
             $form->getData();
+
+            $user->setPassword($passwordEncoder->encodePassword($user, $form['password']->getData()));
 
             $entityManager->persist($user);
             $entityManager->flush();

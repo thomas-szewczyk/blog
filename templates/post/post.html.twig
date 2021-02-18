@@ -1,10 +1,95 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <h1 class="display-4 font-italic">{{ post.title }}</h1>
-    <p class="lead">{{ post.description }}</p>
-    <div class="jumbotron p-3 p-md-5 text-white rounded" style="min-height:300px;background-image: url('{{ absolute_url(asset(post.imageFile)) }}'); background-position: center;background-size: cover;">
+    <div class="py-4 container">
+        <h1 class="display-4 font-italic">{{ post.title }}</h1>
+        <p class="lead">{{ post.description }}</p>
     </div>
-        {{ post.content | raw}}
+    <div class="jumbotron p-3 p-md-5 text-white rounded"
+         style="min-height:300px;background-image: url('{{ absolute_url(asset(post.imageFile)) }}'); background-position: center;background-size: cover;">
+    </div>
+    <div class="py-4 container">
+    {{ post.content | raw }}
+    </div>
+    <hr>
+    <div class="container pb-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="comments">
+                    <div class="comments-details">
+                        <span class="total-comments comments-sort">{{ commentsNum }} Comments</span>
+                        {# ToDo: Filter Functions #}
+                        {#  <span class="dropdown">
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
+                                Sort By <span class="caret"></span>
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="#" class="dropdown-item">Top Comments</a>
+                                <a href="#" class="dropdown-item">Newest First</a>
+                            </div>
+                        </span> #}
+                    </div>
+                    {% if is_granted('IS_ANONYMOUS') == false %}
+                    <div class="comment-box add-comment">
+                        <span class="commenter-pic">
+                            <img src="{{ asset('assets/img/user-icon.jpg') }}" class="img-fluid"/>
+                        </span>
+                        <span class="commenter-name">
+                            {{ form_start(form) }}
+                            {{ form_widget(form.comment) }}
+                                <button type="submit" class="btn btn-default">Comment</button>
+                            {{ form_end(form) }}
+
+                        </span>
+                    </div>
+                        {% else %}
+                            <p>Please <a href="{{ path('app_login') }}">Login</a> to comment.</p>
+                    {% endif %}
+                    {% for comment in comments|reverse %}
+                    <div class="comment-box">
+                        <span class="commenter-pic">
+                            <img src="{{ asset('assets/img/user-icon.jpg') }}" class="img-fluid">
+                        </span>
+                        <span class="commenter-name">
+                            <a href="#">{{ comment.user.username }}</a> <span class="comment-time">{{ comment.createdAt|date('Y-m-d') }}</span>
+                        </span>
+                        <p class="comment-txt more">{{ comment.comment }}
+                        </p>
+                        {# ToDo: like, dislike, reply  #}
+                        {% if is_granted('IS_ANONYMOUS') == false %}
+                        <div class="comment-meta">
+                            <button class="comment-like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 99
+                            </button>
+                            <button class="comment-dislike"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> 149
+                            </button>
+                            {% if comment.user.username == loggedInUser %}
+                            <button class="text-muted">delete</button>
+                            {% endif %}
+                            {#
+                            <button class="comment-reply reply-popup"><i class="fa fa-reply-all" aria-hidden="true"></i>
+                                Reply
+                            </button>
+                            #}
+                        </div>
+                        {% endif %}
+
+                        {# Reply Box for JS #}
+                        {# <div class="comment-box add-comment reply-box">
+                            <span class="commenter-pic">
+                                <img src="/images/user-icon.jpg" class="img-fluid">
+                            </span>
+                            <span class="commenter-name">
+                                <input type="text" placeholder="Add a public reply" name="Add Comment">
+                                <button type="submit" class="btn btn-default">Reply</button>
+                                <button type="cancel" class="btn btn-default reply-popup">Cancel</button>
+                            </span>
+                        </div> #}
+
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
     </div>
 {% endblock %}
