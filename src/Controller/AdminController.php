@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -129,27 +130,8 @@ class AdminController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted()) {     // check if form was submitted
-           $post = $form->getData();    // get the form data
-           $imageFile = $form->get('imageFile')->getData();
-           $post->setUser($this->getUser());
 
-           if ($imageFile) {
-               $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
-               $saveFilename = $slugger->slug($originalFilename);
-               $newFilename = $saveFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
-
-               try {
-                   $imageFile->move(
-                       $this->getParameter('image_directory'),
-                       $newFilename
-                   );
-               } catch (FileException $e) {
-                   $this->addFlash('danger', $e->getMessage());
-               }
-               $post->setImageFile($newFilename);
-           } else {
-               $post->setImageFile('orionthemes-placeholder-image.png');
-           }
+            $post = $this->handlePostForm($form, $post, $slugger);
 
            $entityManager->persist($post);
            $entityManager->flush();
@@ -169,15 +151,17 @@ class AdminController extends AbstractController
      * @ParamConverter("post", class="App:Post")
      * @param Post $post
      * @param CommentRepository $commentRepository
-     * @param EntityManagerInterface $entityManager
      * @param Request $request
+     * @param SluggerInterface $slugger
      * @return Response
      */
-    public function edit(Post $post, CommentRepository $commentRepository, EntityManagerInterface $entityManager, Request $request): Response
+    public function edit(Post $post, CommentRepository $commentRepository, Request $request, SluggerInterface $slugger): Response
     {
 
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
+
+        $post = $this->handlePostForm($form, $post, $slugger);
 
         return $this->render('admin/edit.html.twig', [
             'postComments' => $commentRepository->findByPostId($post->getId()),
@@ -224,7 +208,7 @@ class AdminController extends AbstractController
             $entityManager->persist($user);
             $entityManager->flush();
 
-            $this->addFlash('success', 'User was added!');
+            $this->addFlash('success', 'User was created!');
             return $this->redirectToRoute('admin_show_users');
         }
 
@@ -244,6 +228,34 @@ class AdminController extends AbstractController
         return $this->render('/admin/users.html.twig', [
             'list' => $userRepository->findAllUsers()
         ]);
+    }
+
+    private function handlePostForm(FormInterface $form, Post $post, SluggerInterface $slugger): Post
+    {
+
+        $post = $form->getData();    // get the form data
+        $imageFile = $form->get('imageFile')->getData();
+        $post->setUser($this->getUser());
+
+        if ($imageFile) {
+            $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+            $saveFilename = $slugger->slug($originalFilename);
+            $newFilename = $saveFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+            try {
+                $imageFile->move(
+                    $this->getParameter('image_directory'),
+                    $newFilename
+                );
+            } catch (FileException $e) {
+                $this->addFlash('danger', $e->getMessage());
+            }
+            $post->setImageFile($newFilename);
+        } else {
+            $post->setImageFile('orionthemes-placeholder-image.png');
+        }
+
+        return $post;
     }
 
 }
