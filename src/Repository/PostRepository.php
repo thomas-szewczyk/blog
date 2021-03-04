@@ -26,7 +26,7 @@ class PostRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('post');
 
-        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
+        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author','post.createdAt', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
             ->leftJoin('post.comments', 'comment')
             ->leftJoin('post.likes', 'l')   // 'l' used instead of 'like' because it's a sql keyword
             ->leftJoin('post.user', 'user')
@@ -47,7 +47,7 @@ class PostRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('post');
 
-        $qb->select('post.id', 'post.title', 'post.description', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
+        $qb->select('post.id', 'post.title', 'post.description','post.createdAt', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
             ->innerJoin('post.user', 'user')
             ->leftJoin('post.comments', 'comment')
             ->leftJoin('post.likes', 'l')
