@@ -30,6 +30,7 @@
                         {% if is_granted('ROLE_ADMIN') %}
                             <th>Author</th>
                         {% endif %}
+                        <th>Created at</th>
                         <th>Comments</th>
                         <th>Likes</th>
                         <th>Actions</th>
@@ -44,6 +45,7 @@
                             {% if is_granted('ROLE_ADMIN') %}
                                 <td>{{ post.author }}</td>
                             {% endif %}
+                            <td>{{ post.createdAt|date("Y-m-d") }} at {{ post.createdAt|date("h:m:s") }}</td>
                             <td>{{ post.comments }}</td>
                             <td>{{ post.likes }}</td>
                             <td>
