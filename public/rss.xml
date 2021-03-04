@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>My Blog Page</title>
+    <description>Travel news from all around the world</description>
+    <language>en</language>
+    <link>https://my-blog.com</link>
+    <lastBuildDate>Thu, 04 Mar 2021 14:11:20 +0100</lastBuildDate>
+    <item>
+      <title>Madeira to open up to vaccinated tourists</title>
+      <description>Madeira, Portugal</description>
+      <link>https://my-blog.com/post/27</link>
+      <pubDate>2021-03-02 08:41:00</pubDate>
+    </item>
+    <item>
+      <title>Where can I travel?</title>
+      <description>Which Popular World Destinations Can American Travelers Visit Right Now?</description>
+      <link>https://my-blog.com/post/28</link>
+      <pubDate>2021-03-01 18:26:16</pubDate>
+    </item>
+    <item>
+      <title>Thailand's Tourism Sector Campaigning to Reopen by July</title>
+      <description>Tourism officials in Thailand have announced a new campaign to reopen the country’s borders for international travel.</description>
+      <link>https://my-blog.com/post/29</link>
+      <pubDate>2021-03-03 05:19:30</pubDate>
+    </item>
+  </channel>
+</rss>
