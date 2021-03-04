@@ -7,6 +7,7 @@ use App\Form\Type\UserType;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\UserRepository;
+use App\RSS\RSSFeed;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -50,13 +51,13 @@ class AdminController extends AbstractController
 
         if ($this->isGranted('ROLE_ADMIN')) {
 
-           $headlineLikes = 'Most liked post';
-           $headlineComments = 'Most commented post';
-           $headlineUser = 'User with the most posts';
+            $headlineLikes = 'Most liked post';
+            $headlineComments = 'Most commented post';
+            $headlineUser = 'User with the most posts';
 
-           $mostLikedPost = $postRepository->findMostLiked();
-           $mostCommentedPost = $postRepository->findMostCommented();
-           $userWithMostPosts = $userRepository->findUserWithMostPosts();
+            $mostLikedPost = $postRepository->findMostLiked();
+            $mostCommentedPost = $postRepository->findMostCommented();
+            $userWithMostPosts = $userRepository->findUserWithMostPosts();
 
             return $this->render('admin/dashboard.html.twig', [
                 'headlineLikes' => $headlineLikes,
@@ -131,13 +132,16 @@ class AdminController extends AbstractController
 
         if ($form->isSubmitted()) {     // check if form was submitted
 
-            $post = $this->handlePostForm($form, $post, $slugger);
+            $post = $this->handlePostForm($form, $slugger);
+            $post->setCreatedAt(new \DateTime());
 
-           $entityManager->persist($post);
-           $entityManager->flush();
+            $entityManager->persist($post);
+            $entityManager->flush();
 
-           $this->addFlash('success', 'Post was created!');
-           return $this->redirectToRoute('admin_list');
+            $this->updateRSSFeed();
+
+            $this->addFlash('success', 'Post was created!');
+            return $this->redirectToRoute('admin_list');
         }
 
         return $this->render('admin/create.html.twig', [
@@ -152,16 +156,25 @@ class AdminController extends AbstractController
      * @param Post $post
      * @param CommentRepository $commentRepository
      * @param Request $request
+     * @param EntityManagerInterface $entityManager
      * @param SluggerInterface $slugger
      * @return Response
      */
-    public function edit(Post $post, CommentRepository $commentRepository, Request $request, SluggerInterface $slugger): Response
+    public function edit(Post $post, CommentRepository $commentRepository, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
 
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
 
-        $post = $this->handlePostForm($form, $post, $slugger);
+        if($form->isSubmitted()) {
+            $post = $this->handlePostForm($form, $slugger);
+
+            $entityManager->persist($post);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Post was saved!');
+            return $this->redirectToRoute('admin_edit', ['id' => $post->getId()]);
+        }
 
         return $this->render('admin/edit.html.twig', [
             'postComments' => $commentRepository->findByPostId($post->getId()),
@@ -181,6 +194,8 @@ class AdminController extends AbstractController
     {
         $entityManager->remove($post);
         $entityManager->flush();
+
+        $this->updateRSSFeed();
 
         $this->addFlash('success', 'Post successfully removed!');
         return $this->redirectToRoute('admin_list');
@@ -230,10 +245,9 @@ class AdminController extends AbstractController
         ]);
     }
 
-    private function handlePostForm(FormInterface $form, Post $post, SluggerInterface $slugger): Post
+    private function handlePostForm(FormInterface $form, SluggerInterface $slugger): Post
     {
-
-        $post = $form->getData();    // get the form data
+        $post = $form->getData();
         $imageFile = $form->get('imageFile')->getData();
         $post->setUser($this->getUser());
 
@@ -256,6 +270,16 @@ class AdminController extends AbstractController
         }
 
         return $post;
+    }
+
+    private function updateRSSFeed()
+    {
+        RSSFeed::generateRssFeed(
+            $this->getDoctrine()
+                ->getRepository(Post::class)
+                ->findAll()
+        );
+
     }
 
 }
