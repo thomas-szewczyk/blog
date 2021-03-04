@@ -1,40 +1,51 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Blogify!{% endblock %}
+{% block title %}Blog{% endblock %}
 
 {% block body %}
 
-        {% set latestPost = latest_post %}
-        {% if latestPost %}
-            <div class="jumbotron p-3 p-md-5 text-white bg-dark" style="background-image: url('{{ absolute_url(asset(latestPost.imageFile)) }}'); background-position: center;background-size: cover;box-shadow:inset 0 0 0 2000px rgba(33, 36, 39, 0.65);">
-                    <div class="container">
-                        <h1 class="display-4 font-italic">{{ latestPost.title }}</h1>
-                        <p class="lead my-3">{{ latestPost.description }}</p>
-                        <p class="lead mb-0"><a href="{{ path('show', { id: latestPost.id }) }}" class="text-white font-weight-bold btn btn-primary">Continue reading</a></p>
-                    </div>
+    {% set latestPost = latest_post %}
+
+    {% if latestPost %}
+        <div class="jumbotron p-3 p-md-5 text-white bg-dark" style="background-image: url('{{ absolute_url(asset('assets/img/' ~ latestPost.imageFile)) }}'); background-position: center;background-size: cover;box-shadow:inset 0 0 0 2000px rgba(33, 36, 39, 0.65);">
+            <div class="container py-5">
+                <h1 class="display-4 font-italic">{{ latestPost.title }}</h1>
+                <p class="lead my-3">{{ latestPost.description }}</p>
+                <p class="lead mb-0"><a href="{{ path('show', { id: latestPost.id }) }}" class="text-white font-weight-bold btn btn-danger">Continue reading</a></p>
             </div>
-        {% endif %}
+        </div>
+    {% endif %}
+
     <div class="container">
         <div class="row mb-2 py-4">
-            {% for post in latest_posts %}
-                {% if not loop.first %}
-            <div class="col-md-6">
-                <div class="card flex-md-row mb-4 shadow-sm h-md-250">
-                    <div class="card-body d-flex flex-column align-items-start">
-                        {# <strong class="d-inline-block mb-2 text-primary">Add category here</strong> #}
-                        <h4 class="mb-0">
-                            <a class="text-dark" href="#">{{ post.title }}</a>
-                        </h4>
-                        {# <div class="mb-1 text-muted">Add date soon here</div> #}
-                        <p class="card-text mb-auto">{{ post.description }}</p>
-                        <a href="{{ path('show', { id: post.id }) }}">Continue reading</a>
-                    </div>
-                    <img class="card-img-right flex-auto d-none d-lg-block" src="{{ absolute_url(asset(post.imageFile)) }}" alt="Thumbnail [200x250]" style="width: 200px; height: 250px;object-fit: cover" >
+            {% if latest_posts is empty %}
+                <div class="col-12">
+                    <p class="text-center py-5">
+                        <span class="display-4">No posts available yet...</span>
+                    </p>
                 </div>
-        </div>
-                {% endif %}
-            {% endfor %}
-    </div>
-    </div>
+            {% endif %}
+            {% for post in latest_posts %}
 
+                {% if not loop.first %}
+                    <div class="col-md-6">
+                        <div class="card rounded border-danger flex-md-row mb-4 shadow-sm h-md-250">
+                            <div class="card-body d-flex flex-column align-items-start">
+                                {# <strong class="d-inline-block mb-2 text-primary">Add category here</strong> #}
+                                <h4 class="mb-0">
+                                    <a class="text-dark" href="#">{{ post.title }}</a>
+                                </h4>
+                                {# <div class="mb-1 text-muted">Add date soon here</div> #}
+                                <p class="card-text mt-4 mb-auto">{{ post.description }}</p>
+                                <a href="{{ path('show', { id: post.id }) }}" class="text-danger">Continue reading</a>
+                            </div>
+                            <img class="card-img-right flex-auto d-none d-lg-block" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="Thumbnail [200x250]" style="width: 200px; height: 250px;object-fit: cover" >
+                        </div>
+                    </div>
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+    </div>
 {% endblock %}

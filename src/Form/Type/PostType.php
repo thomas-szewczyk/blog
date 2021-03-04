@@ -19,8 +19,11 @@ class PostType extends AbstractType
         $builder
             ->add('title', TextType::class, ['attr' => ['class' => 'col'], 'label' => false])
             ->add('description', TextType::class, ['attr' => ['class' => 'col'], 'label' => false])
-            ->add('content', CKEditorType::class, ['attr' => ['class' => 'ckeditor'], 'config' => ['toolbar' => 'standard'], 'label' => false, 'data' => 'Enter the content'])
-            ->add('imageFile', FileType::class)
+            ->add('content', CKEditorType::class, ['attr' => ['class' => 'ckeditor'], 'config' => ['toolbar' => 'standard'], 'label' => false ])
+            ->add('imageFile', FileType::class, [
+                'mapped' => false,
+                'required' => false
+            ])
             ->add('save', SubmitType::class, ['attr' => ['class' => 'btn-success']])
         ;
     }

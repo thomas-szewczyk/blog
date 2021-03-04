@@ -7,12 +7,11 @@
            and uncomment the following Encore helpers to start using Symfony UX #}
     {% block stylesheets %}
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     {% endblock %}
 
     {% block javascripts %}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
-
     {% endblock %}
 </head>
 <body class="bg-light">
@@ -29,16 +28,93 @@
 </header>
 <div class="container-fluid">
     <div class="row">
-    {% if is_granted('ROLE_ADMIN') %}
-        {{ include('admin/_sidebar_admin.html.twig') }}
-        {% else %}
+
         {{ include('admin/_sidebar.html.twig') }}
-    {% endif %}
+
         {% block body %}
+            <main class="py-5 col-md-11 ms-sm-auto col-lg-11 px-md-4">
+                <div class="row no-gutters text-center p-5">
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <span class="display-4 text-danger"><i class="fa fa-thumbs-up" aria-hidden="true"></i></span>
+                                <h5 class="card-title font-weight-bold text-danger">Most liked post</h5>
+                                <p class="card-text font-weight-bold">"{{ mostLikedPost.title }}"</p>
+                                <p class="card-text"><span class="font-weight-bold">{{ mostLikedPost.likes }} </span>likes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <span class="display-4 text-primary"><i class="fa fa-comments" aria-hidden="true"></i></span>
+                                <h5 class="card-title font-weight-bold text-primary">Most commented post</h5>
+                                <p class="card-text font-weight-bold">"{{ mostCommentedPost.title }}"</p>
+                                <p class="card-text"><span class="font-weight-bold">{{ mostCommentedPost.comments }}</span> comments</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <div class="col-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <span class="display-4 text-success"><i class="fa fa-user" aria-hidden="true"></i></span>
+                                    <h5 class="card-title font-weight-bold text-success">User with most posts</h5>
+                                    <p class="card-text font-weight-bold">@{{ userWithMostPosts.username }}</p>
+                                    <p class="card-text"><span class="font-weight-bold">{{ userWithMostPosts.posts}}</span> posts</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% else %}
+
+                        <div class="col-4">
+                            <div class="card">
+                                <div class="card-body">
+                                    <span class="display-4 text-success"><i class="fa fa-bar-chart" aria-hidden="true"></i></span>
+                                    <h5 class="card-title font-weight-bold text-success">Summary</h5>
+                                    <p class="card-text"><span class="font-weight-bold">{{ totalPosts }}</span> posts</p>
+                                    <p class="card-text"><span class="font-weight-bold">{{ avgLikes }}</span> likes per post</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endif %}
+
+                </div>
+                <div class="row p-5 no-gutters">
+                    <div class="col-12">
+                        <h3>Page Management</h3>
+                        <hr>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="card mr-3">
+                            <div class="card-body">
+                                <h5 class="card-title">Posts</h5>
+                                <p class="card-text">Add, edit and remove posts</p>
+                                <a href="{{ path('admin_list') }}" class="btn btn-outline-dark">More info</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <div class="col-sm-3">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Users</h5>
+                                    <p class="card-text">Manage the users</p>
+                                    <a href="{{ path('admin_show_users') }}" class="btn btn-outline-dark">More info</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                </div>
+            </main>
 
         {% endblock %}
-
-</div>
+    </div>
 </div>
 </body>
 </html>

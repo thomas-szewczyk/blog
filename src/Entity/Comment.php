@@ -2,7 +2,11 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\DateTimeTrait;
+use App\Entity\Traits\LikeTrait;
+use App\Entity\Traits\UserTrait;
 use App\Repository\CommentRepository;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -10,6 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Comment
 {
+    use LikeTrait;
+    use DateTimeTrait;
+    use UserTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -33,25 +40,19 @@ class Comment
     private $comment;
 
     /**
-     * @ORM\Column(type="datetime")
+     * @see LikeTrait
+     * @ORM\OneToMany(targetEntity=CommentLike::class, mappedBy="comment", orphanRemoval=true)
      */
-    private $created_at;
+    protected $likes;
+
+    public function __construct()
+    {
+        $this->likes = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUser(): ?User
-    {
-        return $this->user;
-    }
-
-    public function setUser(?User $user): self
-    {
-        $this->user = $user;
-
-        return $this;
     }
 
     public function getPost(): ?Post
@@ -78,15 +79,4 @@ class Comment
         return $this;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $created_at): self
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
 }

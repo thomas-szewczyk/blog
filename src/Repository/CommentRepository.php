@@ -4,6 +4,10 @@ namespace App\Repository;
 
 use App\Entity\Comment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -14,37 +18,45 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class CommentRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Comment::class);
     }
 
-    // /**
-    //  * @return Comment[] Returns an array of Comment objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findByPostId(int $id)
     {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('c.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Comment
-    {
-        return $this->createQueryBuilder('c')
-            ->andWhere('c.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $qb = $this->createQueryBuilder('c');
+            $qb->select('c.id', 'c.comment', 'u.username')
+                ->innerJoin('App\Entity\Post', 'p', Join::WITH, 'p = c.post')
+                ->innerJoin('App\Entity\User', 'u', Join::WITH, 'u = c.user')
+                ->where('p.id = :id')
+                ->setParameter('id', $id);
+
+        $query = $qb->getQuery();
+
+        return $query->execute();
+
     }
-    */
+
+    public function getTotalNumberByPostId(int $id): int
+    {
+        $qb = $this->createQueryBuilder('comment');
+        $qb->select('count(comment.id)')
+            ->innerJoin('comment.post', 'post')
+            ->innerJoin('comment.user', 'user')
+            ->where('post.id = :id')
+            ->setParameter('id', $id)
+            ->groupBy('comment.id')
+            ->setMaxResults(1);
+
+        $query = $qb->getQuery();
+
+        try {
+            return $query->getSingleScalarResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return 0;
+        }
+    }
 }

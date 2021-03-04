@@ -3,6 +3,7 @@
 namespace App\DataFixtures;
 
 use App\Entity\Post;
+use App\Entity\PostLike;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
@@ -20,6 +21,8 @@ class AppFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
+
+        // Demo Posts
         $firstPost = new Post();
         $firstPost->setTitle('The first great post!');
         $firstPost->setDescription('This is the first post that was made for test purposes');
@@ -44,12 +47,13 @@ class AppFixtures extends Fixture
 
         $manager->persist($thirdPost);
 
+        // Demo Users
         $rootUser = new User();
-        $rootUser->setUsername('root');
+        $rootUser->setUsername('admin');
         $rootUser->setPassword(
             $this->passwordEncoder->encodePassword(
                 $rootUser,
-                'admin_ADMIN'
+                'admin'
             )
         );
         $rootUser->setRoles(['ROLE_ADMIN', 'ROLE_USER']);
@@ -61,7 +65,7 @@ class AppFixtures extends Fixture
         $regularUser->setPassword(
             $this->passwordEncoder->encodePassword(
                 $regularUser,
-                'user_USER'
+                'user'
             )
         );
 
@@ -78,7 +82,6 @@ class AppFixtures extends Fixture
         $author->setRoles(['ROLE_AUTHOR', 'ROLE_USER']);
 
         $manager->persist($author);
-
 
         $manager->flush();
     }

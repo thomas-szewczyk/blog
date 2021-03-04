@@ -16,19 +16,13 @@ class MainController extends AbstractController
      */
     public function index(PostRepository $postRepository): Response
     {
-        $latestPosts = $this->getLatestPosts($postRepository, 3);
+        $latestPost = $postRepository->findLatestPosts(1);
+        $latestPosts = $postRepository->findLatestPosts();
+
         return $this->render('main/index.html.twig', [
-            'latest_post' => $latestPosts[0],
+            'latest_post' => $latestPost,
             'latest_posts' => $latestPosts
         ]);
-    }
-
-    public function getLatestPosts(PostRepository $postRepository, $numOfPosts): array
-    {
-        $posts = $postRepository->findAll();
-
-        // Array with the 3 most recent posts
-        return array_reverse(array_slice($posts, (count($posts) - 3), $numOfPosts));
     }
 
     /**
@@ -39,7 +33,7 @@ class MainController extends AbstractController
     public function news(PostRepository $postRepository): Response
     {
         return $this->render('main/news.html.twig', [
-            'news' => array_reverse($postRepository->findAll())
+            'news' => $postRepository->findAllPosts()
         ]);
     }
 }

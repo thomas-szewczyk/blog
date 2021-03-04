@@ -6,10 +6,25 @@
         <p class="lead">{{ post.description }}</p>
     </div>
     <div class="jumbotron p-3 p-md-5 text-white rounded"
-         style="min-height:300px;background-image: url('{{ absolute_url(asset(post.imageFile)) }}'); background-position: center;background-size: cover;">
+         style="min-height:300px;background-image: url('{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}'); background-position: center;background-size: cover;">
     </div>
     <div class="py-4 container">
-    {{ post.content | raw }}
+        {{ post.content|raw }}
+    </div>
+    <div class="comments container">
+        {% if app.user and post.likedByUser(app.user) %}
+            <a class="postLikeBtn" href="{{ path('like_post', {'id': post.id}) }}">
+                <button class="comment-like text-danger"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                    <span class="likes">{{ post.likes|length }}</span><span class="likesText"> people like this post</span>
+                </button>
+            </a>
+        {% else %}
+            <a class="postLikeBtn" href="{{ path('like_post', {'id': post.id}) }}">
+                <button class="comment-like text-secondary"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i>
+                    <span class="likes likesText">{{ post.likes|length }}</span><span class="likesText"> people like this post</span>
+                </button>
+            </a>
+        {% endif %}
     </div>
     <hr>
     <div class="container pb-4">
@@ -17,79 +32,75 @@
             <div class="col-12">
                 <div class="comments">
                     <div class="comments-details">
-                        <span class="total-comments comments-sort">{{ commentsNum }} Comments</span>
-                        {# ToDo: Filter Functions #}
-                        {#  <span class="dropdown">
-                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown">
-                                Sort By <span class="caret"></span>
-                            </button>
-                            <div class="dropdown-menu">
-                                <a href="#" class="dropdown-item">Top Comments</a>
-                                <a href="#" class="dropdown-item">Newest First</a>
-                            </div>
-                        </span> #}
+                        <span class="total-comments comments-sort">{{ commentsNum }} {{ commentsText }}</span>
                     </div>
                     {% if is_granted('IS_ANONYMOUS') == false %}
-                    <div class="comment-box add-comment">
+                        <div class="comment-box add-comment">
                         <span class="commenter-pic">
-                            <img src="{{ asset('assets/img/user-icon.jpg') }}" class="img-fluid"/>
+                            <img src="https://picsum.photos/50/50" class="img-fluid" alt=""/>
                         </span>
-                        <span class="commenter-name">
-                            {{ form_start(form) }}
-                            {{ form_widget(form.comment) }}
-                                <button type="submit" class="btn btn-default">Comment</button>
-                            {{ form_end(form) }}
-
-                        </span>
-                    </div>
-                        {% else %}
-                            <p>Please <a href="{{ path('app_login') }}">Login</a> to comment.</p>
-                    {% endif %}
-                    {% for comment in comments|reverse %}
-                    <div class="comment-box">
-                        <span class="commenter-pic">
-                            <img src="{{ asset('assets/img/user-icon.jpg') }}" class="img-fluid">
-                        </span>
-                        <span class="commenter-name">
-                            <a href="#">{{ comment.user.username }}</a> <span class="comment-time">{{ comment.createdAt|date('Y-m-d') }}</span>
-                        </span>
-                        <p class="comment-txt more">{{ comment.comment }}
-                        </p>
-                        {# ToDo: like, dislike, reply  #}
-                        {% if is_granted('IS_ANONYMOUS') == false %}
-                        <div class="comment-meta">
-                            <button class="comment-like"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i> 99
-                            </button>
-                            <button class="comment-dislike"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i> 149
-                            </button>
-                            {% if comment.user.username == loggedInUser %}
-                            <button class="text-muted">delete</button>
-                            {% endif %}
-                            {#
-                            <button class="comment-reply reply-popup"><i class="fa fa-reply-all" aria-hidden="true"></i>
-                                Reply
-                            </button>
-                            #}
-                        </div>
-                        {% endif %}
-
-                        {# Reply Box for JS #}
-                        {# <div class="comment-box add-comment reply-box">
-                            <span class="commenter-pic">
-                                <img src="/images/user-icon.jpg" class="img-fluid">
-                            </span>
                             <span class="commenter-name">
-                                <input type="text" placeholder="Add a public reply" name="Add Comment">
-                                <button type="submit" class="btn btn-default">Reply</button>
-                                <button type="cancel" class="btn btn-default reply-popup">Cancel</button>
-                            </span>
-                        </div> #}
-
-                    </div>
-                    {% endfor %}
+                            {{ form_start(form) }}
+                                {{ form_widget(form.comment) }}
+                                <button type="submit" class="btn btn-danger bg-danger text-white">Comment<i class="ml-2 fas fa-comment"></i></button>
+                            {{ form_end(form) }}
+                        </span>
+                        </div>
+                    {% else %}
+                        <p>Please <a href="{{ path('app_login') }}">Login</a> to comment.</p>
+                    {% endif %}
                 </div>
+                {% for comment in comments|reverse %}
+                    <div class="card gedf-card">
+                        <div class="card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="mr-2">
+                                        <img class="rounded-circle" width="45" src="https://picsum.photos/50/50" alt="">
+                                    </div>
+                                    <div class="ml-2">
+                                        <div class="h5 m-0">@{{ comment.user.username }}</div>
+                                    </div>
+                                </div>
+                                <div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            {# <div class="text-muted h7 mb-2"> <i class="fa fa-clock-o"></i>10 min ago</div> #}
+                            <p class="card-text">
+                                {{ comment.comment }}
+                            </p>
+                        </div>
+                        <div class="card-footer d-flex w-100">
+                            {% if app.user and comment.likedByUser(app.user) %}
+                                <a href="{{ path('like_comment', {'id': comment.id}) }}" class="card-link commentLikeBtn">
+                                        <span class="text-danger">
+                                            <i class="fa fa-thumbs-o-up"></i> Like
+                                            <span class="ml-3 text-muted"><span class="commentLikes">{{ comment.likes|length }}</span> people like this</span>
+                                        </span>
+                                </a>
+                            {% else %}
+                                <a href="{{ path('like_comment', {'id': comment.id}) }}" class="card-link commentLikeBtn">
+                                        <span class="text-secondary">
+                                            <i class="fa fa-thumbs-o-up"></i> Like
+                                            <span class="ml-3 text-muted"><span class="commentLikes">{{ comment.likes|length }}</span> people like this</span>
+                                        </span>
+                                </a>
+                            {% endif %}
+                            {% if app.user and comment.user.username == loggedInUser %}
+                                <a href="{{ path('remove_comment', {'id': comment.id}) }}">
+                                    <button class="text-muted ml-4 border-0 bg-light">delete</button>
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="{{ asset('assets/like.js') }}"></script>
 {% endblock %}

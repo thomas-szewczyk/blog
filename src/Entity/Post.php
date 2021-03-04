@@ -2,6 +2,9 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\CreatedByTrait;
+use App\Entity\Traits\LikeTrait;
+use App\Entity\Traits\UserTrait;
 use App\Repository\PostRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -12,6 +15,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Post
 {
+    use LikeTrait;
+    use UserTrait;
     /**
      * @ORM\Id
      * @ORM\GeneratedValue
@@ -40,18 +45,24 @@ class Post
     private $imageFile;
 
     /**
-     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="post")
+     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="post", orphanRemoval=true)
      */
     private $comments;
 
     /**
      * @ORM\ManyToOne(targetEntity=User::class, inversedBy="posts")
      */
-    private $createdBy;
+    private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity=PostLike::class, mappedBy="likedPost", orphanRemoval=true)
+     */
+    protected $likes;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -137,15 +148,4 @@ class Post
         return $this;
     }
 
-    public function getCreatedBy(): ?User
-    {
-        return $this->createdBy;
-    }
-
-    public function setCreatedBy(?User $createdBy): self
-    {
-        $this->createdBy = $createdBy;
-
-        return $this;
-    }
 }

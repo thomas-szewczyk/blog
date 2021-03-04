@@ -42,14 +42,31 @@ class User implements UserInterface
     private $comments;
 
     /**
-     * @ORM\OneToMany(targetEntity=Post::class, mappedBy="createdBy")
+     * @ORM\OneToMany(targetEntity=Post::class, mappedBy="user")
      */
     private $posts;
+
+    /**
+     * @ORM\OneToMany(targetEntity=PostLike::class, mappedBy="user")
+     */
+    private $likes;
+
+    /**
+     * @ORM\OneToMany(targetEntity=CommentLike::class, mappedBy="user")
+     */
+    private $commentLikes;
+
+    /**
+     *
+     */
+    private $choiceRole;
 
     public function __construct()
     {
         $this->comments = new ArrayCollection();
         $this->posts = new ArrayCollection();
+        $this->likes = new ArrayCollection();
+        $this->commentLikes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -170,7 +187,7 @@ class User implements UserInterface
     {
         if (!$this->posts->contains($post)) {
             $this->posts[] = $post;
-            $post->setCreatedBy($this);
+            $post->setUser($this);
         }
 
         return $this;
@@ -180,11 +197,93 @@ class User implements UserInterface
     {
         if ($this->posts->removeElement($post)) {
             // set the owning side to null (unless already changed)
-            if ($post->getCreatedBy() === $this) {
-                $post->setCreatedBy(null);
+            if ($post->getUser() === $this) {
+                $post->setUser(null);
             }
         }
 
         return $this;
     }
+
+    /**
+     * @return Collection|PostLike[]
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(PostLike $like): self
+    {
+        if (!$this->likes->contains($like)) {
+            $this->likes[] = $like;
+            $like->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeLike(PostLike $like): self
+    {
+        if ($this->likes->removeElement($like)) {
+            // set the owning side to null (unless already changed)
+            if ($like->getUser() === $this) {
+                $like->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|CommentLike[]
+     */
+    public function getCommentLikes(): Collection
+    {
+        return $this->commentLikes;
+    }
+
+    public function addCommentLike(CommentLike $commentLike): self
+    {
+        if (!$this->commentLikes->contains($commentLike)) {
+            $this->commentLikes[] = $commentLike;
+            $commentLike->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentLike(CommentLike $commentLike): self
+    {
+        if ($this->commentLikes->removeElement($commentLike)) {
+            // set the owning side to null (unless already changed)
+            if ($commentLike->getUser() === $this) {
+                $commentLike->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function addRole($role)
+    {
+        array_push($this->roles, $role);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getChoiceRole()
+    {
+        return $this->choiceRole;
+    }
+
+    /**
+     * @param mixed $choiceRole
+     */
+    public function setChoiceRole($choiceRole): void
+    {
+        $this->choiceRole = $choiceRole;
+    }
+
 }

@@ -73,7 +73,7 @@
     margin: 10px 5px;
     font-size: 14px;
     text-transform: uppercase;
-    float: right;
+    float: left;
 }
 .comments .commenter-name .comment-time {
     font-weight: normal;
@@ -95,7 +95,7 @@
 }
 .comments .comment-meta {
     font-size: 14px;
-    color: #333;
+    color: #333333;
     padding: 2px 5px 0px;
     line-height: 20px;
     float: left;
@@ -121,6 +121,14 @@
     background-color: #fff;
 }
 
+.comments.container button {
+    font-size: 1.2rem;
+}
+
+.likesText {
+    font-size: 0.9rem;
+}
+
 /*======Responsive CSS=======*/
 @media (max-width: 767px){
     .comments .commenter-name {
@@ -137,5 +145,19 @@
     .comments .commenter-name .comment-time{
         display: block;
         margin-left: 0px;
+    }
+}
+
+.gedf-wrapper {
+    margin-top: 0.97rem;
+}
+
+@media (min-width: 992px) {
+    .gedf-main {
+        padding-left: 4rem;
+        padding-right: 4rem;
+    }
+    .gedf-card {
+        margin-bottom: 2.77rem;
     }
 }

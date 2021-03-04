@@ -2,19 +2,18 @@
 
 {% block body %}
     <div class="py-5 container">
-    {% for post in news %}
-    <div class="d-flex align-items-center">
-        <div class="mr-5">
-            <img class="card-img-left" src="{{ absolute_url(asset(post.imageFile)) }}" alt="" style="width: 275px; height: 180px;object-fit: cover">
-        </div>
-        <div>
-            <h2>{{ post.title }}</h2>
-            <p class="lead">{{ post.description }}</p>
-            <p class="lead mb-0"><a href="{{ path('show', { id: post.id }) }}" class="">Continue reading...</a></p>
-        </div>
-    </div>
-
-        <hr>
-    {% endfor %}
+        {% for post in news %}
+            <div class="d-flex align-items-center">
+                <div class="mr-5">
+                    <img class="card-img-left" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="" style="width: 275px; height: 180px;object-fit: cover">
+                </div>
+                <div>
+                    <h2>{{ post.title }}</h2>
+                    <p class="lead">{{ post.description }}</p>
+                    <p class="lead mb-0"><a href="{{ path('show', { id: post.id }) }}" class="text-danger">Continue reading...</a></p>
+                </div>
+            </div>
+            <hr>
+        {% endfor %}
     </div>
 {% endblock %}

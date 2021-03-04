@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\Type\UserType;
+use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -19,20 +21,79 @@ use App\Entity\Post;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
+/**
+ * Class AdminController
+ * @package App\Controller
+ * @Route("/admin", name="admin_")
+ */
 class AdminController extends AbstractController
 {
-    /**
-     * @Route("/admin", name="admin")
-     */
-    public function index(): Response
+
+    public function configureOptions(OptionsResolver $resolver): void
     {
-        return $this->render('admin/dashboard.html.twig', [
-            'controller_name' => 'AdminController',
+        $resolver->setDefaults([
+            'data_class' => Post::class,
         ]);
     }
 
     /**
-     * @Route("admin/posts", name="list")
+     * @Route("/", name="index")
+     * @param PostRepository $postRepository
+     * @param UserRepository $userRepository
+     * @return Response
+     */
+    public function index(PostRepository $postRepository, UserRepository $userRepository): Response
+    {
+        $user = $this->getUser();
+        $username = $user->getUsername();
+
+        if ($this->isGranted('ROLE_ADMIN')) {
+
+           $headlineLikes = 'Most liked post';
+           $headlineComments = 'Most commented post';
+           $headlineUser = 'User with the most posts';
+
+           $mostLikedPost = $postRepository->findMostLiked();
+           $mostCommentedPost = $postRepository->findMostCommented();
+           $userWithMostPosts = $userRepository->findUserWithMostPosts();
+
+            return $this->render('admin/dashboard.html.twig', [
+                'headlineLikes' => $headlineLikes,
+                'headlineComments' => $headlineComments,
+                'headlineUser' => $headlineUser,
+                'mostLikedPost' => $mostLikedPost,
+                'mostCommentedPost' => $mostCommentedPost,
+                'userWithMostPosts' => $userWithMostPosts
+            ]);
+
+        } else {
+
+            $headlineLikes = 'Your most liked post';
+            $headlineComments = 'Your most commented post';
+
+            $mostLikedPost = $postRepository->findMostLikedByUsername($username);
+            $mostCommentedPost = $postRepository->findMostCommentedByUsername($username);
+
+            $avgLikes = $postRepository->countAvgLikes($username);
+            $avgLikesRounded = round($avgLikes, 2);
+
+            $totalPosts = $postRepository->getNumberOfPostsByUser($username);
+
+            return $this->render('admin/dashboard.html.twig', [
+                'headlineLikes' => $headlineLikes,
+                'headlineComments' => $headlineComments,
+                'mostLikedPost' => $mostLikedPost,
+                'mostCommentedPost' => $mostCommentedPost,
+                'avgLikes' => $avgLikesRounded,
+                'totalPosts' => $totalPosts
+            ]);
+        }
+
+
+    }
+
+    /**
+     * @Route("/posts", name="list")
      * @param PostRepository $postRepository
      * @return Response
      */
@@ -42,26 +103,24 @@ class AdminController extends AbstractController
 
         if ($hasAccess = $this->isGranted('ROLE_ADMIN')) {
             $headline = 'All Posts';
+            $posts = $postRepository->findAllPosts();
         } else {
             $headline = 'Your Posts';
+            $posts = $postRepository->findByCreator($user->getUsername());
         }
-
         return $this->render('admin/list.html.twig', [
-            'list' => $postRepository->findAll(),
-            'postsFromUser' => $user->getPosts(),
+            'list' => $posts,
             'headline' => $headline
-
         ]);
     }
 
     /**
-     * @Route("admin/create", name="create")
+     * @Route("/create", name="create")
      * @param Request $request
      * @param EntityManagerInterface $entityManager
      * @param SluggerInterface $slugger
      * @return Response
      */
-
     public function create(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $post = new Post(); // new post instance
@@ -69,10 +128,10 @@ class AdminController extends AbstractController
         $form = $this->createForm(PostType::class, $post);  // creates the form to create a new post
         $form->handleRequest($request);
 
-
         if ($form->isSubmitted()) {     // check if form was submitted
            $post = $form->getData();    // get the form data
            $imageFile = $form->get('imageFile')->getData();
+           $post->setUser($this->getUser());
 
            if ($imageFile) {
                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
@@ -96,43 +155,61 @@ class AdminController extends AbstractController
            $entityManager->flush();
 
            $this->addFlash('success', 'Post was created!');
-           return $this->redirectToRoute('list');
+           return $this->redirectToRoute('admin_list');
         }
 
         return $this->render('admin/create.html.twig', [
+            'headline' => 'Create post',
             'form' => $form->createView(),
         ]);
     }
 
     /**
-     * @Route("/admin/delete/{id}", name="remove")
+     * @Route ("/posts/post/{id}/edit", name="edit")
+     * @ParamConverter("post", class="App:Post")
+     * @param Post $post
+     * @param CommentRepository $commentRepository
+     * @param EntityManagerInterface $entityManager
+     * @param Request $request
+     * @return Response
+     */
+    public function edit(Post $post, CommentRepository $commentRepository, EntityManagerInterface $entityManager, Request $request): Response
+    {
+
+        $form = $this->createForm(PostType::class, $post);
+        $form->handleRequest($request);
+
+        return $this->render('admin/edit.html.twig', [
+            'postComments' => $commentRepository->findByPostId($post->getId()),
+            'headline' => 'Edit post',
+            'form' => $form->createView(),
+        ]);
+    }
+
+
+    /**
+     * @Route("/delete/{id}", name="remove")
      * @param Post $post
      * @param EntityManagerInterface $entityManager
+     * @return RedirectResponse
      */
     public function remove(Post $post, EntityManagerInterface $entityManager): RedirectResponse
     {
         $entityManager->remove($post);
         $entityManager->flush();
 
-        $this->addFlash('success', 'Post was removed!');
-        return $this->redirectToRoute('list');
-    }
-
-    public function configureOptions(OptionsResolver $resolver): void
-    {
-        $resolver->setDefaults([
-            'data_class' => Post::class,
-        ]);
+        $this->addFlash('success', 'Post successfully removed!');
+        return $this->redirectToRoute('admin_list');
     }
 
     /**
-     * @Route("/admin/user/create", name="new_user")
+     * @Route("/user/create", name="new_user")
      * @param EntityManagerInterface $entityManager
      * @param Request $request
      * @param UserPasswordEncoderInterface $passwordEncoder
      * @return RedirectResponse|Response
      */
-    public function newUser(EntityManagerInterface $entityManager, Request $request, UserPasswordEncoderInterface $passwordEncoder) {
+    public function editUser(EntityManagerInterface $entityManager, Request $request, UserPasswordEncoderInterface $passwordEncoder) {
 
         $user = new User();
         $form = $this->createForm(UserType::class, $user);
@@ -142,12 +219,13 @@ class AdminController extends AbstractController
             $form->getData();
 
             $user->setPassword($passwordEncoder->encodePassword($user, $form['password']->getData()));
+            $user->addRole($form['choiceRole']->getData());
 
             $entityManager->persist($user);
             $entityManager->flush();
 
             $this->addFlash('success', 'User was added!');
-            return $this->redirectToRoute('show_users');
+            return $this->redirectToRoute('admin_show_users');
         }
 
         return $this->render('admin/adduser.html.twig', [
@@ -157,14 +235,15 @@ class AdminController extends AbstractController
     }
 
     /**
-     * @Route("/admin/user", name="show_users")
+     * @Route("/users", name="show_users")
      * @param UserRepository $userRepository
      * @return Response
      */
     public function showUsers(UserRepository $userRepository): Response
     {
         return $this->render('/admin/users.html.twig', [
-            'list' => $userRepository->findAll()
+            'list' => $userRepository->findAllUsers()
         ]);
     }
+
 }
