@@ -1,9 +1,17 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}Blog{% endblock %}
-
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/css/splide.min.css">
+{% endblock %}
 {% block body %}
 
+    {% if rss.channel.item|length >= 6 %}
+
+    {{ include('main/_rssslider.html.twig') }}
+
+    {% endif %}
     {% set latestPost = latest_post %}
 
     {% if latestPost %}
@@ -26,7 +34,6 @@
                 </div>
             {% endif %}
             {% for post in latest_posts %}
-
                 {% if not loop.first %}
                     <div class="col-md-6">
                         <div class="card rounded border-danger flex-md-row mb-4 shadow-sm h-md-250">
@@ -48,4 +55,19 @@
 
         </div>
     </div>
+{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@latest/dist/js/splide.min.js"></script>
+    <script>
+        new Splide( '.splide', {
+            type   : 'loop',
+            perPage: 3,
+            perMove: 1,
+            pagination: false,
+            arrows: false,
+            autoplay: true,
+            number: 3000
+        } ).mount();
+    </script>
 {% endblock %}
