@@ -39,6 +39,19 @@ class PostRepository extends ServiceEntityRepository
                 ->getResult();
     }
 
+    public function findAllPostsAsEntities(): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->groupBy('post.id')
+            ->orderBy('post.id', 'DESC');
+
+        dump($qb->getQuery()->getResult()); // For debugging
+
+        return $qb->getQuery()
+            ->getResult();
+    }
+
     /*
      * @param $createdBy
      * @return Post[] Returns an array of Post objects
