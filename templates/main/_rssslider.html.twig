@@ -1,0 +1,15 @@
+<section class="py-4">
+    <div class="splide">
+        <div class="splide__track container">
+            <div class="splide__list">
+                {% for item in rss.channel.item|slice(3) %}
+                    <div class="splide__slide px-3 border-left border-right border-danger">
+                        <a href="{{ item.link }}" class="text-dark text-center">
+                            <h5>{{ item.title }}</h5>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>

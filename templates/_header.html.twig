@@ -1,0 +1,37 @@
+<header class="blog-header py-3 navbar navbar-dark bg-danger">
+    <div class="container">
+        <div class="row flex-nowrap justify-content-between align-items-center w-100">
+            <div class="col">
+                <a class="navbar-brand font-weight-bold" href="{{ path('home') }}">Blog</a>
+            </div>
+            <div class="col ml-auto d-flex align-items-center justify-content-end">
+                {# ToDo: Search field #}
+                {#
+                <a class="text-muted" href="#">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mx-3"><circle cx="10.5" cy="10.5" r="7.5"></circle><line x1="21" y1="21" x2="15.8" y2="15.8"></line></svg>
+                </a> #}
+                {% if is_granted('IS_ANONYMOUS') %}
+                    <a class="btn text-danger font-weight-bold btn-sm btn-light" href="{{ path('app_login') }}">Sign in<i class="ml-2 fas fa-sign-in-alt"></i></a>
+                {% elseif is_granted('ROLE_ADMIN') or is_granted('ROLE_AUTHOR') %}
+                    <a class="mr-4 avatar" href="{{ path('admin_index') }}">
+                        <img src="https://picsum.photos/50/50" class="img-fluid" alt=""/>
+                    </a>
+                    <a class="btn btn-sm btn-light" href="{{ path('app_logout') }}">Sign out<i class="ml-2 fas fa-sign-out-alt"></i></a>
+                {% else %}
+                    <a class="mr-4 avatar" href="#">
+                        <img src="https://picsum.photos/50/50" class="img-fluid"/>
+                    </a>
+                    <a class="btn btn-sm btn-light" href="{{ path('app_logout') }}">Sign out<i class="ml-2 fas fa-sign-out-alt"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</header>
+<div class="nav-scroller py-1 bg-light">
+    <div class="container">
+        <nav class="nav d-flex justify-content-between">
+            <a class="p-0 py-2 nav-link text-dark font-weight-bold" href="{{ path('news') }}">News</a>
+        </nav>
+    </div>
+</div>
+

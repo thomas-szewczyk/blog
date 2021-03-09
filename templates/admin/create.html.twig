@@ -1,0 +1,33 @@
+{% extends 'admin/dashboard.html.twig' %}
+
+{% block body %}
+    <main class="col-md-1 ms-sm-auto col-lg-11 px-md-4"><div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+        <div class="container">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{{ headline }}</h1>
+            </div>
+        </div>
+
+        <div class="container p-3 bg-white">
+            {{ form_start(form) }}
+            <div class="input-group mb-3">
+                <span class="input-group-text mb-3">Title</span>
+                {{ form_widget(form.title) }}
+            </div>
+            <div class="input-group mb-3">
+                <span class="input-group-text mb-3">Description</span>
+                {{ form_widget(form.description) }}
+            </div>
+            <div class="py-3">
+                {{ form_row(form.content) }}
+            </div>
+            <div class="py-3">
+                {{ form_widget(form.imageFile) }}
+            </div>
+        </div>
+        <div class="mt-5 container">
+            {{ form_end(form) }}
+        </div>
+
+    </main>
+{% endblock %}

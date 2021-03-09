@@ -4,6 +4,9 @@ namespace App\Repository;
 
 use App\Entity\Post;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -19,32 +22,210 @@ class PostRepository extends ServiceEntityRepository
         parent::__construct($registry, Post::class);
     }
 
-    // /**
-    //  * @return Post[] Returns an array of Post objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    public function findAllPosts(): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('p.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author','post.createdAt', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
+            ->leftJoin('post.comments', 'comment')
+            ->leftJoin('post.likes', 'l')   // 'l' used instead of 'like' because it's a sql keyword
+            ->leftJoin('post.user', 'user')
+            ->groupBy('post.id')
+            ->orderBy('post.id', 'DESC');
+
+            dump($qb->getQuery()->getResult()); // For debugging
+
+            return $qb->getQuery()
+                ->getResult();
     }
-    */
+
+    public function findAllPostsAsEntities(): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->groupBy('post.id')
+            ->orderBy('post.id', 'DESC');
+
+        dump($qb->getQuery()->getResult()); // For debugging
+
+        return $qb->getQuery()
+            ->getResult();
+    }
 
     /*
-    public function findOneBySomeField($value): ?Post
+     * @param $createdBy
+     * @return Post[] Returns an array of Post objects
+     */
+    public function findByCreator(string $createdBy): array
     {
-        return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.id', 'post.title', 'post.description','post.createdAt', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
+            ->innerJoin('post.user', 'user')
+            ->leftJoin('post.comments', 'comment')
+            ->leftJoin('post.likes', 'l')
+            ->groupBy('post.id')
+            ->where('user.username = :name')
+            ->setParameter('name', $createdBy);
+
+        return $qb->getQuery()->getResult();
     }
-    */
+
+    public function findLatestPosts(int $size = 3): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
+            ->leftJoin('post.comments', 'comment')
+            ->leftJoin('post.likes', 'l')
+            ->leftJoin('post.user', 'user')
+            ->groupBy('post.id')
+            ->orderBy('post.id', 'DESC')
+            ->setMaxResults($size);
+
+        dump($qb->getQuery()->getResult()); // For debugging
+
+        if($size > 1) {
+            return $qb->getQuery()->getResult();
+        }
+
+        try {
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return array();
+        }
+
+    }
+
+    public function findMostLiked(): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.title', 'count(l.id) as likes')
+            ->leftJoin('post.likes', 'l')
+            ->groupBy('post.title')
+            ->orderBy('count(l.id)', 'DESC')
+            ->setMaxResults(1);
+
+        dump($qb->getQuery()->getResult());     // For debugging
+
+        try {
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return array(
+                'title' => 'Nothing posted yet...',
+                'likes' => 0);
+        }
+    }
+
+    public function findMostLikedByUsername(string $createdBy): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.title', 'count(l.id) as likes')
+            ->leftJoin('post.likes', 'l')
+            ->innerJoin('post.user', 'user')
+            ->where('user.username = :username')
+            ->setParameter('username', $createdBy)
+            ->groupBy('post.title')
+            ->orderBy('count(l.id)', 'DESC')
+            ->setMaxResults(1);
+
+   //     dump($qb->getQuery()->getSingleResult());     // For debugging
+
+        try {
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return array(
+                'title' => 'Nothing posted yet',
+                'likes' => 0);
+        }
+    }
+
+    public function findMostCommentedByUsername(string $createdBy): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.title', 'count(comment.id) as comments')
+            ->leftJoin('post.comments', 'comment')
+            ->innerJoin('post.user', 'user')
+            ->where('user.username = :username')
+            ->setParameter('username', $createdBy)
+            ->groupBy('post.title')
+            ->orderBy('count(comment.id)', 'DESC')
+            ->setMaxResults(1);
+
+ //       dump($qb->getQuery()->getResult());     // For debugging
+
+        try {
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return array(
+                'title' => 'Nothing posted yet',
+                'comments' => 0);
+        }
+    }
+
+    public function countAvgLikes(string $createdBy): float
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('(count(l.id) / count(distinct post.id)) as avg')
+            ->leftJoin('post.likes', 'l')
+            ->innerJoin('post.user', 'user')
+            ->where('user.username = :username')
+            ->setParameter('username', $createdBy)
+            ->groupBy('user.username')
+            ->setMaxResults(1);
+
+  //      dump($qb->getQuery()->getSingleScalarResult());     // For debugging
+
+        try {
+            return $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return 0.0;
+        }
+    }
+
+    public function findMostCommented(): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.title', 'count(comment.id) as comments')
+            ->leftJoin('post.comments', 'comment')
+            ->groupBy('post.title')
+            ->orderBy('count(comment.id)', 'DESC')
+            ->setMaxResults(1);
+
+     //   dump($qb->getQuery()->getSingleResult());     // For debugging
+
+        try {
+            return $qb->getQuery()->getSingleResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return array(
+                'title' => 'Nothing posted yet...',
+                'comments' => 0
+            );
+        }
+    }
+
+    public function getNumberOfPostsByUser(string $createdBy): int
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('count(post.id) as total')
+            ->innerJoin('post.user', 'user')
+            ->where('user.username = :username')
+            ->setParameter('username', $createdBy)
+            ->groupBy('user.username');
+
+   //     dump($qb->getQuery()->getResult());     // For debugging
+
+        try {
+            return $qb->getQuery()->getSingleScalarResult();
+        } catch (NoResultException | NonUniqueResultException $e) {
+            return 0;
+        }
+    }
+
 }

@@ -1,0 +1,65 @@
+{% extends 'admin/dashboard.html.twig' %}
+
+{% block body %}
+    <main class="col-md-11 ms-sm-auto col-lg-11 px-md-4">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">{{ headline }}</h1>
+            </div>
+
+            {% for label, messages in app.flashes %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ label }}" role="alert">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+
+        </div>
+
+        <div class="container-fluid p-3">
+            <div class="row">
+                <div class="col-7 bg-white p-3">
+                    {{ form_start(form) }}
+                    <div class="input-group mb-3">
+                        <span class="input-group-text mb-3">Title</span>
+                        {{ form_widget(form.title) }}
+                    </div>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text mb-3">Description</span>
+                        {{ form_widget(form.description) }}
+                    </div>
+                    <div class="py-3">
+                        {{ form_row(form.content) }}
+                    </div>
+                    <div class="py-3">
+                        {{ form_widget(form.imageFile) }}
+                    </div>
+                    {{ form_end(form) }}
+                </div>
+                <div class="col-4 mx-4 bg-white p-4">
+                    <h3>Comments</h3>
+                    <hr class="mb-4">
+                    {% for comment in postComments %}
+                        <div class="card border-0 shadow p-3 mt-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="user d-flex flex-row align-items-center"> <img src="https://picsum.photos/50/50" width="30" class="user-img rounded-circle mr-2"> <span><small class="font-weight-bold text-primary">@{{ comment.username }}</small></span> </div>
+                            </div>
+                            <div class="mt-1 px-5"><small class="font-weight-bold">{{ comment.comment }}</small></div>
+
+                            {% if is_granted('ROLE_ADMIN') %}
+                                <div class="action d-flex justify-content-end mt-2 align-items-center">
+                                    <a href="{{ path('remove_comment', {'id': comment.id }) }}">
+                                        <span class="text-danger">Remove</span>
+                                    </a>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </main>
+{% endblock %}
