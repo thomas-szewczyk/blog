@@ -12,6 +12,7 @@ class MainController extends AbstractController
     /**
      * @Route("/", name="home")
      * @param PostRepository $postRepository
+     *
      * @return Response
      */
     public function index(PostRepository $postRepository): Response
@@ -19,9 +20,12 @@ class MainController extends AbstractController
         $latestPost = $postRepository->findLatestPosts(1);
         $latestPosts = $postRepository->findLatestPosts();
 
+        $rss = $this->loadRssFile();
+
         return $this->render('main/index.html.twig', [
             'latest_post' => $latestPost,
-            'latest_posts' => $latestPosts
+            'latest_posts' => $latestPosts,
+            'rss' => $rss
         ]);
     }
 
@@ -35,5 +39,10 @@ class MainController extends AbstractController
         return $this->render('main/news.html.twig', [
             'news' => $postRepository->findAllPosts()
         ]);
+    }
+
+    public function loadRssFile(string $path = '../public/rss.xml')
+    {
+        return simplexml_load_file($path);
     }
 }
