@@ -48,11 +48,11 @@
                             <div class="mt-1 px-5"><small class="font-weight-bold">{{ comment.comment }}</small></div>
 
                             {% if is_granted('ROLE_ADMIN') %}
-                            <div class="action d-flex justify-content-end mt-2 align-items-center">
-                                <a href="{{ path('remove_comment', {'id': comment.id }) }}">
-                                    <span class="text-danger">Remove</span>
-                                </a>
-                            </div>
+                                <div class="action d-flex justify-content-end mt-2 align-items-center">
+                                    <a href="{{ path('remove_comment', {'id': comment.id }) }}">
+                                        <span class="text-danger">Remove</span>
+                                    </a>
+                                </div>
                             {% endif %}
 
                         </div>
