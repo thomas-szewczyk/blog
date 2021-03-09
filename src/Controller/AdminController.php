@@ -11,6 +11,7 @@ use App\RSS\RSSFeed;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -163,6 +164,12 @@ class AdminController extends AbstractController
      */
     public function edit(Post $post, CommentRepository $commentRepository, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
+        $username = $this->getUser()->getUsername();
+        $postAuthor = $post->getUser()->getUsername();
+
+        if(!$this->isGranted('ROLE_ADMIN')) {
+            $this->checkAccessRestrictions($username, $postAuthor);
+        }
 
         $form = $this->createForm(PostType::class, $post);
         $form->handleRequest($request);
@@ -188,14 +195,22 @@ class AdminController extends AbstractController
      * @Route("/delete/{id}", name="remove")
      * @param Post $post
      * @param EntityManagerInterface $entityManager
+     * @param Request $request
      * @return RedirectResponse
      */
-    public function remove(Post $post, EntityManagerInterface $entityManager): RedirectResponse
+    public function remove(Post $post, EntityManagerInterface $entityManager, Request $request): RedirectResponse
     {
+        $username = $this->getUser()->getUsername();
+        $postAuthor = $post->getUser()->getUsername();
+
+        if(!$this->isGranted('ROLE_ADMIN')) {
+            $this->checkAccessRestrictions($username, $postAuthor);
+        }
+
         $entityManager->remove($post);
         $entityManager->flush();
 
-        $this->updateRSSFeed();
+        $this->updateRSSFeed($request);
 
         $this->addFlash('success', 'Post successfully removed!');
         return $this->redirectToRoute('admin_list');
@@ -283,6 +298,14 @@ class AdminController extends AbstractController
             $uri
 
         );
+    }
+
+    protected function checkAccessRestrictions(string $username, string $postAuthor)
+    {
+        if($username !== $postAuthor) {
+            throw new AccessDeniedException();
+        }
+
     }
 
 }
