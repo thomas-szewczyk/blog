@@ -26,7 +26,6 @@ class RssController extends AbstractController
     {
         $uri = $request->getBaseUrl();
 
-
         RSSFeed::generateRssFeed($postRepository->findAllPostsAsEntities(), $uri);
         return $this->render('rss/index.html.twig', [
             'controller_name' => 'RssController',
