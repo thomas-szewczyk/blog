@@ -8,10 +8,10 @@ use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\UserRepository;
 use App\RSS\RSSFeed;
+use App\Security\AccessDeniedHandler;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Finder\Exception\AccessDeniedException;
 use Symfony\Component\Form\FormInterface;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -22,6 +22,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Type\PostType;
 use App\Entity\Post;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
@@ -302,6 +303,7 @@ class AdminController extends AbstractController
 
     protected function checkAccessRestrictions(string $username, string $postAuthor)
     {
+
         if($username !== $postAuthor) {
             throw new AccessDeniedException();
         }
