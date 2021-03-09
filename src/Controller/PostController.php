@@ -73,10 +73,15 @@ class PostController extends AbstractController
             ]);
         }
 
+        $post = $postRepository->find($id);
+
+        if (!$post) {
+            throw $this->createNotFoundException('The post doe not exist');
+        }
 
         return $this->render('post/post.html.twig', [
-            'post' => $postRepository->find($id),
-            'comments' => $postRepository->find($id)->getComments(),
+            'post' => $post,
+            'comments' => $post->getComments(),
             'commentsNum' => $commentsNum,
             'commentsText' => $commentsText,
             'form' => $form->createView()
