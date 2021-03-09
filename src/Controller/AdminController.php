@@ -30,6 +30,7 @@ use Symfony\Component\String\Slugger\SluggerInterface;
  */
 class AdminController extends AbstractController
 {
+    public const PLACEHOLDER = 'orionthemes-placeholder-image.png';
 
     public function configureOptions(OptionsResolver $resolver): void
     {
@@ -91,7 +92,6 @@ class AdminController extends AbstractController
             ]);
         }
 
-
     }
 
     /**
@@ -110,6 +110,7 @@ class AdminController extends AbstractController
             $headline = 'Your Posts';
             $posts = $postRepository->findByCreator($user->getUsername());
         }
+
         return $this->render('admin/list.html.twig', [
             'list' => $posts,
             'headline' => $headline
@@ -138,7 +139,7 @@ class AdminController extends AbstractController
             $entityManager->persist($post);
             $entityManager->flush();
 
-            $this->updateRSSFeed();
+            $this->updateRSSFeed($request);
 
             $this->addFlash('success', 'Post was created!');
             return $this->redirectToRoute('admin_list');
@@ -182,7 +183,6 @@ class AdminController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
     /**
      * @Route("/delete/{id}", name="remove")
@@ -266,20 +266,23 @@ class AdminController extends AbstractController
             }
             $post->setImageFile($newFilename);
         } else {
-            $post->setImageFile('orionthemes-placeholder-image.png');
+            $post->setImageFile(AdminController::PLACEHOLDER);
         }
 
         return $post;
     }
 
-    private function updateRSSFeed()
+    private function updateRSSFeed(Request $request)
     {
+        $uri = $request->getBaseUrl();
+
         RSSFeed::generateRssFeed(
             $this->getDoctrine()
                 ->getRepository(Post::class)
-                ->findAll()
-        );
+                ->findAll(),
+            $uri
 
+        );
     }
 
 }
