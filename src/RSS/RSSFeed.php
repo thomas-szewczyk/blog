@@ -4,13 +4,16 @@
 namespace App\RSS;
 
 
+use Symfony\Component\HttpKernel\KernelInterface;
+
 class RSSFeed
 {
+
     public static function generateRssFeed($posts,
-                                       string $title = 'My Blog Page',
-                                       string $description = "Travel news from all around the world",
-                                       string $lang = 'en',
-                                       string $link = 'https://my-blog.com')
+                                           string $link = 'https://my-blog.com',
+                                           string $title = 'My Blog Page',
+                                           string $description = "Travel news from all around the world",
+                                           string $lang = 'en')
     {
         $xwr = new \XMLWriter();
         $xwr->openUri('rss.xml');
