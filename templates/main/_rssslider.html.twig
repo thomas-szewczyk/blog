@@ -1,6 +1,7 @@
 <section class="py-2">
     <div class="splide">
-        <div class="splide__track container">
+        <div class="container">
+        <div class="splide__track">
             <div class="splide__list">
                 {% for item in rss.channel.item|slice(3) %}
                     <div class="splide__slide px-3 border-left border-right border-danger">
@@ -23,5 +24,6 @@
                 {% endfor %}
             </div>
         </div>
+    </div>
     </div>
 </section>

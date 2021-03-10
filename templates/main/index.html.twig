@@ -22,12 +22,14 @@
             </div>
         </div>
     </div>
-
-    <hr>
-    {% if rss.channel.item|length >= 6 %}
-        {{ include('main/_rssslider.html.twig') }}
-    {% endif %}
-    <hr>
+    <div class="pb-4">
+        <h3 class="text-center">More recent news</h3>
+        <hr>
+        {% if rss.channel.item|length >= 6 %}
+            {{ include('main/_rssslider.html.twig') }}
+        {% endif %}
+        <hr>
+    </div>
 
 {% endblock %}
 
