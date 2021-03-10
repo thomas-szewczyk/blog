@@ -6,7 +6,6 @@ use App\Entity\Post;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -31,7 +30,7 @@ class PostRepository extends ServiceEntityRepository
             ->leftJoin('post.likes', 'l')   // 'l' used instead of 'like' because it's a sql keyword
             ->leftJoin('post.user', 'user')
             ->groupBy('post.id')
-            ->orderBy('post.id', 'DESC');
+            ->orderBy('post.createdAt', 'DESC');
 
             dump($qb->getQuery()->getResult()); // For debugging
 
@@ -44,7 +43,7 @@ class PostRepository extends ServiceEntityRepository
         $qb = $this->createQueryBuilder('post');
 
         $qb->groupBy('post.id')
-            ->orderBy('post.id', 'DESC');
+            ->orderBy('post.createdAt', 'DESC');
 
         dump($qb->getQuery()->getResult()); // For debugging
 
@@ -81,7 +80,7 @@ class PostRepository extends ServiceEntityRepository
             ->leftJoin('post.user', 'user')
             ->leftJoin('post.category', 'category')
             ->groupBy('post.id')
-            ->orderBy('post.id', 'DESC')
+            ->orderBy('post.createdAt', 'DESC')
             ->setMaxResults($size);
 
         dump($qb->getQuery()->getResult()); // For debugging
@@ -239,7 +238,7 @@ class PostRepository extends ServiceEntityRepository
             ->where('category.id = :catId')
             ->setParameter('catId', $id)
             ->groupBy('post.id')
-            ->orderBy('post.id', 'DESC');
+            ->orderBy('post.createdAt', 'DESC');
 
         dump($qb->getQuery()->getResult()); // For debugging
 
