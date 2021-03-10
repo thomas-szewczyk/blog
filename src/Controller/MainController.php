@@ -34,12 +34,14 @@ class MainController extends AbstractController
     /**
      * @Route("/news", name="news")
      * @param PostRepository $postRepository
+     * @param CategoryRepository $categoryRepository
      * @return Response
      */
-    public function news(PostRepository $postRepository): Response
+    public function news(PostRepository $postRepository, CategoryRepository $categoryRepository): Response
     {
         return $this->render('main/news.html.twig', [
-            'news' => $postRepository->findAllPosts()
+            'news' => $postRepository->findAllPosts(),
+            'categories' => $categoryRepository->findAll()
         ]);
     }
 
@@ -53,11 +55,13 @@ class MainController extends AbstractController
     public function showCategory(int $id, PostRepository $postRepository, CategoryRepository $categoryRepository): Response
     {
         $category = $categoryRepository->find($id);
+
         if (!$category) {
             throw $this->createNotFoundException('The category does not exist');
         } else {
             $postsByCategory = $postRepository-> findAllPostsByCategory($id);
         }
+
         return $this->render('main/category.html.twig', [
             'postsByCategory' => $postsByCategory,
             'category' => $category->getName()
