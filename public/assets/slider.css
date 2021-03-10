@@ -6,3 +6,11 @@
 .splide__slide__meta {
     font-size: 0.8rem;
 }
+
+.post-time {
+    font-size: 0.7rem;
+}
+
+.jumbotron .post-time {
+    font-size: 0.8rem;
+}
