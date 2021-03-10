@@ -1,15 +1,9 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-
     <div class="py-5 container">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item text-danger"><a href="#" class="text-muted">Home</a></li>
-                <li class="breadcrumb-item text-danger"><a href="#" class="text-muted">News</a></li>
-            </ol>
-        </nav>
-        {% for post in news %}
+        {{ include('main/_breadcrumb.html.twig') }}
+        {% for post in postsByCategory %}
             <div class="d-flex align-items-center">
                 <div class="mr-5">
                     <img class="card-img-left" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="" style="width: 275px; height: 180px;object-fit: cover">

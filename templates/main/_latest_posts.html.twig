@@ -1,41 +1,38 @@
-<div class="container">
-    <div class="row mb-2 py-4">
-        {% if latest_posts is empty %}
-            <div class="col-12">
-                <p class="text-center py-5">
-                    <span class="display-4">No posts available yet...</span>
-                </p>
+<div class="row">
+    {% if latest_posts is empty %}
+        <div class="col-12">
+            <p class="text-center py-5">
+                <span class="display-4">No posts available yet...</span>
+            </p>
+        </div>
+    {% endif %}
+    {% for post in latest_posts %}
+        {% if not loop.first %}
+            <div class="col-md-6">
+                <div class="card rounded border-danger flex-md-row mb-4 shadow-sm h-md-250">
+                    <div class="card-body p-3 d-flex flex-column align-items-start">
+                        <div class="pl-3 mt-2 mb-2 row align-items-center">
+                            <span class="badge text-white bg-info mr-2">{{ post.cat }}</span>
+                            {% set difference = date('now'|date()).diff(date(post.pubDate)) %}
+                            {% set leftDays = difference.days %}
+                            {% if leftDays == 1 %}
+                                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Yesterday</div>
+                            {% elseif leftDays == 0 %}
+                                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Today</div>
+                            {% else %}
+                                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> {{ leftDays }} days ago</div>
+                            {% endif %}
+                        </div>
+                        <h5 class="mb-0">
+                            <a class="text-dark" href="#">{{ post.title }}</a>
+                        </h5>
+                        <p class="card-text mt-2 mb-auto">{{ post.description| u.truncate(58, '...', false) }}</p>
+                        <a href="{{ path('show', { id: post.id }) }}" class="text-danger">Continue reading</a>
+                    </div>
+                    <img class="card-img-right flex-auto d-none d-lg-block" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="Thumbnail [200x250]" style="width: 200px; height: 250px;object-fit: cover" >
+                </div>
             </div>
         {% endif %}
-        {% for post in latest_posts %}
-            {% if not loop.first %}
-                <div class="col-md-6">
-                    <div class="card rounded border-danger flex-md-row mb-4 shadow-sm h-md-250">
-                        <div class="card-body d-flex flex-column align-items-start">
-                            <div class="pl-3 mt-2 mb-2 row align-items-center">
-                                <span class="badge text-white bg-info mr-2">{{ post.cat }}</span>
-                                {% set difference = date('now'|date()).diff(date(post.pubDate)) %}
-                                {% set leftDays = difference.days %}
-                                {% if leftDays == 1 %}
-                                    <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Yesterday</div>
-                                {% elseif leftDays == 0 %}
-                                    <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Today</div>
-                                {% else %}
-                                    <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> {{ leftDays }} days ago</div>
-                                {% endif %}
-                            </div>
-                            <h4 class="mb-0">
-                                <a class="text-dark" href="#">{{ post.title }}</a>
-                            </h4>
-                            <p class="card-text mt-2 mb-auto">{{ post.description }}</p>
-                            <a href="{{ path('show', { id: post.id }) }}" class="text-danger">Continue reading</a>
-                        </div>
-                        <img class="card-img-right flex-auto d-none d-lg-block" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="Thumbnail [200x250]" style="width: 200px; height: 250px;object-fit: cover" >
-                    </div>
-                </div>
-            {% endif %}
 
-        {% endfor %}
-
-    </div>
+    {% endfor %}
 </div>

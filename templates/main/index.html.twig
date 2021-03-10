@@ -10,13 +10,24 @@
 
 {% block body %}
 
+    {{ include('main/_hero.html.twig') }}
+
+    <div class="container">
+        <div class="row mb-2 py-4">
+            <div class="col col-md-10">
+                {{ include('main/_latest_posts.html.twig') }}
+            </div>
+            <div class="col col-md-2">
+                {{ include('main/_categories.html.twig') }}
+            </div>
+        </div>
+    </div>
+
+    <hr>
     {% if rss.channel.item|length >= 6 %}
         {{ include('main/_rssslider.html.twig') }}
     {% endif %}
-
-    {{ include('main/_hero.html.twig') }}
-
-    {{ include('main/_latest_posts.html.twig') }}
+    <hr>
 
 {% endblock %}
 

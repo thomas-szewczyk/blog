@@ -229,4 +229,23 @@ class PostRepository extends ServiceEntityRepository
         }
     }
 
+    public function findAllPostsByCategory(int $id): array
+    {
+        $qb = $this->createQueryBuilder('post');
+
+        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author','post.createdAt', 'category.name')
+            ->leftJoin('post.user', 'user')
+            ->leftJoin('post.category', 'category')
+            ->where('category.id = :catId')
+            ->setParameter('catId', $id)
+            ->groupBy('post.id')
+            ->orderBy('post.id', 'DESC');
+
+        dump($qb->getQuery()->getResult()); // For debugging
+
+        return $qb->getQuery()
+            ->getResult();
+
+    }
+
 }
