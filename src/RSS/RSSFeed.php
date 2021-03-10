@@ -40,6 +40,9 @@ class RSSFeed
             $xwr->writeElement('title', $post->getTitle());
             $xwr->writeElement('description', $post->getDescription());
             $xwr->writeElement('link', $link . '/post/' .  $post->getId());
+            if ($post->getCategory()) {
+                $xwr->writeElement('category', $post->getCategory()->getName());
+            }
             $xwr->writeElement('pubDate', $post->getCreatedAt()->format('Y-m-d H:i:s'));
             $xwr->endElement(); // end item-element
         }

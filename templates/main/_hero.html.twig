@@ -1,0 +1,22 @@
+{% set latestPost = latest_post %}
+    {% if latestPost %}
+        <div class="jumbotron p-3 p-md-5 text-white bg-dark" style="background-image: url('{{ absolute_url(asset('assets/img/' ~ latestPost.imageFile)) }}'); background-position: center;background-size: cover;box-shadow:inset 0 0 0 2000px rgba(33, 36, 39, 0.65);">
+            <div class="container py-5">
+                <div class="pl-3 row align-items-center">
+                    <span class="badge text-white bg-info mr-2">{{ latestPost.cat }}</span>
+                    {% set difference = date('now'|date()).diff(date(latestPost.pubDate)) %}
+                    {% set leftDays = difference.days %}
+                    {% if leftDays == 1 %}
+                        <div class="text-white mr-2 post-time"><i class="far fa-clock"></i> Yesterday</div>
+                    {% elseif leftDays ==  0%}
+                        <div class="text-white mr-2 post-time"><i class="far fa-clock"></i> Today</div>
+                    {% else %}
+                        <div class="text-white mr-2 post-time"><i class="far fa-clock"></i> {{ leftDays }} days ago</div>
+                    {% endif %}
+                </div>
+                <h1 class="display-4 font-italic">{{ latestPost.title }}</h1>
+                <p class="lead mt-3">{{ latestPost.description }}</p>
+                <p class="mt-5 lead mb-0"><a href="{{ path('show', { id: latestPost.id }) }}" class="text-white font-weight-bold btn btn-danger">Continue reading</a></p>
+            </div>
+        </div>
+    {% endif %}

@@ -75,10 +75,11 @@ class PostRepository extends ServiceEntityRepository
     {
         $qb = $this->createQueryBuilder('post');
 
-        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
+        $qb->select('post.id', 'post.title', 'post.description', 'post.imageFile','user.username as author','category.name as cat', 'post.createdAt as pubDate', 'count(distinct comment.id) as comments', 'count(distinct l.id) as likes')
             ->leftJoin('post.comments', 'comment')
             ->leftJoin('post.likes', 'l')
             ->leftJoin('post.user', 'user')
+            ->leftJoin('post.category', 'category')
             ->groupBy('post.id')
             ->orderBy('post.id', 'DESC')
             ->setMaxResults($size);
