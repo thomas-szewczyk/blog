@@ -1,0 +1,12 @@
+<div class="pl-3 mt-2 mb-2 row align-items-center">
+    <span class="badge text-white bg-info mr-2">{{ post.cat }}</span>
+    {% set difference = date('now'|date()).diff(date(post.pubDate)) %}
+    {% set leftDays = difference.days %}
+    {% if leftDays == 1 %}
+        <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Yesterday</div>
+    {% elseif leftDays == 0 %}
+        <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Today</div>
+    {% else %}
+        <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> {{ leftDays }} days ago</div>
+    {% endif %}
+</div>

@@ -11,18 +11,7 @@
             <div class="col-md-6">
                 <div class="card rounded border-danger flex-md-row mb-4 shadow-sm h-md-250">
                     <div class="card-body p-3 d-flex flex-column align-items-start">
-                        <div class="pl-3 mt-2 mb-2 row align-items-center">
-                            <span class="badge text-white bg-info mr-2">{{ post.cat }}</span>
-                            {% set difference = date('now'|date()).diff(date(post.pubDate)) %}
-                            {% set leftDays = difference.days %}
-                            {% if leftDays == 1 %}
-                                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Yesterday</div>
-                            {% elseif leftDays == 0 %}
-                                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Today</div>
-                            {% else %}
-                                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> {{ leftDays }} days ago</div>
-                            {% endif %}
-                        </div>
+                        {{ include('main/_news_meta.html.twig') }}
                         <h5 class="mb-0">
                             <a class="text-dark" href="#">{{ post.title }}</a>
                         </h5>
