@@ -23,7 +23,7 @@
         </div>
     </div>
     <div class="pb-4">
-        <h3 class="text-center">More recent news</h3>
+        <h3 class="text-center text-muted">More recent news</h3>
         <hr>
         {% if rss.channel.item|length >= 6 %}
             {{ include('main/_rssslider.html.twig') }}

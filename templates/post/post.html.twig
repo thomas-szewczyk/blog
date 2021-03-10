@@ -1,10 +1,24 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
+    {# This part is similar to _news_meta.html.twig - try to merge it? #}
     <div class="py-4 container">
+        <div class="pl-3 mt-2 mb-2 row align-items-center">
+            <span class="badge text-white bg-info mr-2">{{ post.category.name }}</span>
+            {% set difference = date('now'|date()).diff(date(post.createdAt)) %}
+            {% set leftDays = difference.days %}
+            {% if leftDays == 1 %}
+                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Yesterday</div>
+            {% elseif leftDays == 0 %}
+                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> Today</div>
+            {% else %}
+                <div class="text-muted mr-2 post-time"><i class="far fa-clock"></i> {{ leftDays }} days ago</div>
+            {% endif %}
+        </div>
         <h1 class="display-4 font-italic">{{ post.title }}</h1>
         <p class="lead">{{ post.description }}</p>
     </div>
+
     <div class="jumbotron p-3 p-md-5 text-white rounded"
          style="min-height:300px;background-image: url('{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}'); background-position: center;background-size: cover;">
     </div>
