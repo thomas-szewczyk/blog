@@ -9,18 +9,27 @@
                 <li class="breadcrumb-item text-danger"><a href="#" class="text-muted">News</a></li>
             </ol>
         </nav>
-        {% for post in news %}
-            <div class="d-flex align-items-center">
-                <div class="mr-5">
-                    <img class="card-img-left" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="" style="width: 275px; height: 180px;object-fit: cover">
-                </div>
-                <div>
-                    <h2>{{ post.title }}</h2>
-                    <p class="lead">{{ post.description }}</p>
-                    <p class="lead mb-0"><a href="{{ path('show', { id: post.id }) }}" class="text-danger">Continue reading...</a></p>
-                </div>
+        <div class="row">
+            <div class="col col-md-9">
+                {% for post in news %}
+                    <div class="d-flex align-items-center">
+                        <div class="mr-5">
+                            <img class="card-img-left" src="{{ absolute_url(asset('assets/img/' ~ post.imageFile)) }}" alt="" style="width: 275px; height: 180px;object-fit: cover">
+                        </div>
+                        <div>
+                            <h2>{{ post.title }}</h2>
+                            <p class="lead">{{ post.description }}</p>
+                            <p class="lead mb-0"><a href="{{ path('show', { id: post.id }) }}" class="text-danger">Continue reading...</a></p>
+                        </div>
+                    </div>
+                    <hr>
+                {% endfor %}
             </div>
-            <hr>
-        {% endfor %}
+            <div class="col col-md-3">
+                {{ include('main/_categories.html.twig') }}
+            </div>
+
+        </div>
+
     </div>
 {% endblock %}
