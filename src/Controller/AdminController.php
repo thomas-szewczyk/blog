@@ -92,7 +92,6 @@ class AdminController extends AbstractController
                 'totalPosts' => $totalPosts
             ]);
         }
-
     }
 
     /**
@@ -294,19 +293,16 @@ class AdminController extends AbstractController
         RSSFeed::generateRssFeed(
             $this->getDoctrine()
                 ->getRepository(Post::class)
-                ->findAll(),
+                ->findAllPostsAsEntities(),
             $uri
-
         );
     }
 
     protected function checkAccessRestrictions(string $username, string $postAuthor)
     {
-
         if($username !== $postAuthor) {
             throw new AccessDeniedException();
         }
-
     }
 
 }

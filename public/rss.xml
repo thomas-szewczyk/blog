@@ -5,48 +5,62 @@
     <description>Travel news from all around the world</description>
     <language>en</language>
     <link>/~tomek/blog/public/index.php</link>
-    <lastBuildDate>Tue, 09 Mar 2021 12:38:48 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 10 Mar 2021 14:18:35 +0100</lastBuildDate>
     <item>
-      <title>Madeira to open up to vaccinated tourists</title>
-      <description>Madeira, Portugal</description>
-      <link>/~tomek/blog/public/index.php/post/27</link>
-      <pubDate>2021-03-02 08:41:00</pubDate>
+      <title>US Virgin Islands to welcome new JetBlue connection</title>
+      <description>The United States Virgin Islands will welcome new flights from the New York tri-state area this summer.</description>
+      <link>/~tomek/blog/public/index.php/post/36</link>
+      <category>Travel News</category>
+      <pubDate>2021-03-10 12:44:59</pubDate>
     </item>
     <item>
-      <title>Where can I travel?</title>
-      <description>Which Popular World Destinations Can American Travelers Visit Right Now?</description>
-      <link>/~tomek/blog/public/index.php/post/28</link>
-      <pubDate>2021-03-01 18:26:16</pubDate>
+      <title>Costa Rica Travel Restrictions</title>
+      <description>Things Tourists Should Know for 2021</description>
+      <link>/~tomek/blog/public/index.php/post/35</link>
+      <category>Travel Guide</category>
+      <pubDate>2021-03-03 11:23:00</pubDate>
     </item>
     <item>
-      <title>Thailand's Tourism Sector Campaigning to Reopen by July</title>
-      <description>Tourism officials in Thailand have announced a new campaign to reopen the country’s borders for international travel.</description>
-      <link>/~tomek/blog/public/index.php/post/29</link>
-      <pubDate>2021-03-03 05:19:30</pubDate>
+      <title>Princess Cruises scraps international summer sailing from UK</title>
+      <description>Princess Cruises has become the latest line to scrap plans for international sailing from the UK over the summer.</description>
+      <link>/~tomek/blog/public/index.php/post/34</link>
+      <category>Travel News</category>
+      <pubDate>2021-03-10 11:16:01</pubDate>
     </item>
     <item>
       <title>Hong Kong Tourism Board prepares for reopening of travel</title>
-      <description>The Hong Kong Tourism Board (HKTB) has announced its plan to prepare for the recovery of tourism and the resumption of international travel.</description>
-      <link>/~tomek/blog/public/index.php/post/30</link>
-      <pubDate>2021-03-09 11:29:06</pubDate>
-    </item>
-    <item>
-      <title>Eurowings to boost presence in Berlin as rivals depart</title>
-      <description>Eurowings is stepping up its commitment in Berlin and will open a new base at Berlin Brandenburg Airport (BER) on April 1st.</description>
-      <link>/~tomek/blog/public/index.php/post/31</link>
-      <pubDate>2021-03-09 11:41:40</pubDate>
+      <description>The Hong Kong Tourism Board (HKTB) has announced its plan to prepare for the recovery of tourism</description>
+      <link>/~tomek/blog/public/index.php/post/33</link>
+      <category>Travel News</category>
+      <pubDate>2021-03-10 11:14:50</pubDate>
     </item>
     <item>
       <title>Seychelles to reopen to tourism this month</title>
       <description>The Seychelles will reopen to tourists, regardless of vaccination status, from March 25th.</description>
       <link>/~tomek/blog/public/index.php/post/32</link>
+      <category>Travel News</category>
       <pubDate>2021-03-09 11:46:46</pubDate>
     </item>
     <item>
-      <title>Escape to Greece to launch to British travellers</title>
-      <description>Escape to Greece will launch this month, offering bespoke holidays to 27 destinations in the country, with over 400 hand-picked properties.</description>
-      <link>/~tomek/blog/public/index.php/post/33</link>
-      <pubDate>2021-03-09 12:38:48</pubDate>
+      <title>Eurowings to boost presence in Berlin as rivals depart</title>
+      <description>Eurowings is stepping up its commitment in Berlin and will open a new base at Berlin Brandenburg Airport</description>
+      <link>/~tomek/blog/public/index.php/post/31</link>
+      <category>Travel Guide</category>
+      <pubDate>2021-03-09 11:41:40</pubDate>
+    </item>
+    <item>
+      <title>Thailand's Tourism Sector Campaigning to Reopen by July</title>
+      <description>Tourism officials in Thailand have announced a new campaign to reopen the country’s borders</description>
+      <link>/~tomek/blog/public/index.php/post/29</link>
+      <category>Travel News</category>
+      <pubDate>2021-03-08 05:19:30</pubDate>
+    </item>
+    <item>
+      <title>Where can I travel?</title>
+      <description>Which Popular World Destinations Can American Travelers Visit Right Now?</description>
+      <link>/~tomek/blog/public/index.php/post/28</link>
+      <category>Travel Guide</category>
+      <pubDate>2021-03-01 18:26:16</pubDate>
     </item>
   </channel>
 </rss>
