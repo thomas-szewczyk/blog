@@ -7,7 +7,8 @@ use App\Form\Type\UserType;
 use App\Repository\CommentRepository;
 use App\Repository\PostRepository;
 use App\Repository\UserRepository;
-use App\RSS\RSSFeed;
+use App\Service\AccessRestrictionsChecker;
+use App\Service\RssFeedUpdater;
 use Doctrine\ORM\EntityManagerInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -21,7 +22,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\Type\PostType;
 use App\Entity\Post;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
-use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
 /**
@@ -122,9 +122,15 @@ class AdminController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $entityManager
      * @param SluggerInterface $slugger
+     * @param PostRepository $postRepository
+     * @param RssFeedUpdater $rssFeedUpdater
      * @return Response
      */
-    public function create(Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function create(Request $request,
+                           EntityManagerInterface $entityManager,
+                           SluggerInterface $slugger,
+                           PostRepository $postRepository,
+                           RssFeedUpdater $rssFeedUpdater): Response
     {
         $post = new Post(); // new post instance
 
@@ -139,7 +145,7 @@ class AdminController extends AbstractController
             $entityManager->persist($post);
             $entityManager->flush();
 
-            $this->updateRSSFeed($request);
+            $rssFeedUpdater->updateRSSFeed($request, $postRepository);
 
             $this->addFlash('success', 'Post was created!');
             return $this->redirectToRoute('admin_list');
@@ -159,15 +165,25 @@ class AdminController extends AbstractController
      * @param Request $request
      * @param EntityManagerInterface $entityManager
      * @param SluggerInterface $slugger
+     * @param RssFeedUpdater $rssFeedUpdater
+     * @param PostRepository $postRepository
+     * @param AccessRestrictionsChecker $accessRestrictionsChecker
      * @return Response
      */
-    public function edit(Post $post, CommentRepository $commentRepository, Request $request, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    public function edit(Post $post,
+                         CommentRepository $commentRepository,
+                         Request $request,
+                         EntityManagerInterface $entityManager,
+                         SluggerInterface $slugger,
+                         RssFeedUpdater $rssFeedUpdater,
+                         PostRepository $postRepository,
+                         AccessRestrictionsChecker $accessRestrictionsChecker): Response
     {
         $username = $this->getUser()->getUsername();
         $postAuthor = $post->getUser()->getUsername();
 
         if(!$this->isGranted('ROLE_ADMIN')) {
-            $this->checkAccessRestrictions($username, $postAuthor);
+            $accessRestrictionsChecker->checkAccessRestrictions($username, $postAuthor);
         }
 
         $form = $this->createForm(PostType::class, $post);
@@ -178,6 +194,8 @@ class AdminController extends AbstractController
 
             $entityManager->persist($post);
             $entityManager->flush();
+
+            $rssFeedUpdater->updateRSSFeed($request, $postRepository);
 
             $this->addFlash('success', 'Post was saved!');
             return $this->redirectToRoute('admin_edit', ['id' => $post->getId()]);
@@ -195,21 +213,29 @@ class AdminController extends AbstractController
      * @param Post $post
      * @param EntityManagerInterface $entityManager
      * @param Request $request
+     * @param RssFeedUpdater $rssFeedUpdater
+     * @param PostRepository $postRepository
+     * @param AccessRestrictionsChecker $accessRestrictionsChecker
      * @return RedirectResponse
      */
-    public function remove(Post $post, EntityManagerInterface $entityManager, Request $request): RedirectResponse
+    public function remove(Post $post,
+                           EntityManagerInterface $entityManager,
+                           Request $request,
+                           RssFeedUpdater $rssFeedUpdater,
+                           PostRepository $postRepository,
+                           AccessRestrictionsChecker $accessRestrictionsChecker): RedirectResponse
     {
         $username = $this->getUser()->getUsername();
         $postAuthor = $post->getUser()->getUsername();
 
         if(!$this->isGranted('ROLE_ADMIN')) {
-            $this->checkAccessRestrictions($username, $postAuthor);
+            $accessRestrictionsChecker->checkAccessRestrictions($username, $postAuthor);
         }
 
         $entityManager->remove($post);
         $entityManager->flush();
 
-        $this->updateRSSFeed($request);
+        $rssFeedUpdater->updateRSSFeed($request, $postRepository);
 
         $this->addFlash('success', 'Post successfully removed!');
         return $this->redirectToRoute('admin_list');
@@ -286,23 +312,5 @@ class AdminController extends AbstractController
         return $post;
     }
 
-    private function updateRSSFeed(Request $request)
-    {
-        $uri = $request->getBaseUrl();
-
-        RSSFeed::generateRssFeed(
-            $this->getDoctrine()
-                ->getRepository(Post::class)
-                ->findAllPostsAsEntities(),
-            $uri
-        );
-    }
-
-    protected function checkAccessRestrictions(string $username, string $postAuthor)
-    {
-        if($username !== $postAuthor) {
-            throw new AccessDeniedException();
-        }
-    }
 
 }
